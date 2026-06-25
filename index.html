@@ -1,524 +1,640 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Happy Father's Day</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Anton&family=Cinzel:wght@400;600;900&family=Cormorant+Garamond:wght@400;600&family=Oswald:wght@300;400;600;700&display=swap" rel="stylesheet">
-<link href="https://fonts.cdnfonts.com/css/moonwalk" rel="stylesheet">
-
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Bafana Bafana — Road to the Round of 32</title>
+<meta name="description" content="An animated 3D tribute celebrating Bafana Bafana's qualification to the FIFA World Cup Round of 16." />
 <style>
+  :root{
+    --green:#007a4d;        /* SA / Bafana green */
+    --green-deep:#004d30;
+    --gold:#ffb612;         /* Bafana gold */
+    --red:#de3831;
+    --blue:#002395;
+    --white:#ffffff;
+    --black:#0a0a0a;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;overflow:hidden;background:#000;color:#fff;font-family:'Inter','Helvetica Neue',Arial,sans-serif}
+  #stage{position:fixed;inset:0}
+  canvas{display:block}
 
-:root{
-    --yellow:#f5c518;
-    --gold:#f7d774;
-    --bg:#111;
-    --text:#fff;
-}
-
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-}
-
-body,html{
-    width:100%;
-    height:100%;
-    overflow:hidden;
-    background:#111;
-    color:white;
-    font-family:'Oswald',sans-serif;
-}
-
-.page{
-    position:fixed;
-    inset:0;
-    opacity:0;
-    pointer-events:none;
-    transition:1s;
-}
-
-.page.active{
-    opacity:1;
+  /* Top bar */
+  .hud{
+    position:absolute;inset:0;pointer-events:none;
+    display:grid;grid-template-rows:auto 1fr auto;
+  }
+  .topbar{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:22px 32px;
+    background:linear-gradient(180deg,rgba(0,0,0,.55),transparent);
+  }
+  .crest{display:flex;align-items:center;gap:14px}
+  .crest .ball{
+    width:46px;height:46px;border-radius:50%;
+    background:
+      radial-gradient(circle at 30% 30%,#fff 0 18%,transparent 19%),
+      radial-gradient(circle at 70% 65%,#000 0 12%,transparent 13%),
+      radial-gradient(circle at 30% 75%,#000 0 10%,transparent 11%),
+      radial-gradient(circle at 75% 25%,#000 0 9%,transparent 10%),
+      #fff;
+    box-shadow:0 6px 24px rgba(255,182,18,.35),inset 0 0 0 2px #000;
+    animation:spin 6s linear infinite;
+  }
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .crest h1{font-size:18px;letter-spacing:.18em;text-transform:uppercase;font-weight:800}
+  .crest h1 span{color:var(--gold)}
+  .badge{
     pointer-events:auto;
-}
+    border:1px solid rgba(255,255,255,.25);
+    padding:8px 14px;border-radius:999px;font-size:12px;letter-spacing:.2em;text-transform:uppercase;
+    background:rgba(0,122,77,.35);backdrop-filter:blur(8px);
+  }
 
-/* PAGE 1 */
+  /* Center title */
+  .center{
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    text-align:center;padding:0 24px;
+    position:relative;
+    z-index:5;
+  }
+  .kicker{
+    font-size:12px;letter-spacing:.45em;text-transform:uppercase;color:var(--gold);
+    opacity:0;transform:translateY(20px);
+    animation:rise .9s .3s forwards cubic-bezier(.2,.7,.2,1);
+  }
+  .title{
+    margin-top:10px;
+    font-size:clamp(48px,9vw,140px);
+    line-height:.95;font-weight:900;letter-spacing:-.02em;
+    background:linear-gradient(180deg,#fff 0%, #ffd766 60%, var(--gold) 100%);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    text-shadow:0 12px 40px rgba(0,0,0,.55);
+    opacity:0;transform:translateY(40px) scale(.96);
+    animation:rise 1.2s .55s forwards cubic-bezier(.2,.7,.2,1);
+  }
+  .sub{
+    margin-top:14px;font-size:clamp(14px,1.6vw,18px);letter-spacing:.3em;text-transform:uppercase;
+    color:#eaeaea;opacity:0;animation:rise 1s 1s forwards cubic-bezier(.2,.7,.2,1);
+  }
+  @keyframes rise{to{opacity:1;transform:none}}
 
-#page1{
-    background:
-    radial-gradient(circle at top left,rgba(255,255,255,.08),transparent 40%),
-    radial-gradient(circle at bottom right,rgba(255,255,255,.05),transparent 40%),
-    #111;
-}
+  /* Bottom ticker + player reel */
+  .bottom{
+    display:grid;grid-template-columns:1fr auto;gap:24px;align-items:end;
+    padding:24px 32px 28px;
+    background:linear-gradient(0deg,rgba(0,0,0,.7),transparent);
+  }
+  .reel{
+    pointer-events:auto;
+    display:flex;gap:14px;align-items:center;
+  }
+  .card{
+    width:120px;height:150px;border-radius:14px;overflow:hidden;position:relative;
+    background:linear-gradient(160deg,var(--green) 0%,var(--green-deep) 60%,#000 100%);
+    box-shadow:0 18px 40px rgba(0,0,0,.5), inset 0 0 0 1px rgba(255,255,255,.08);
+    transform:translateY(20px);opacity:0;
+    animation:rise .8s forwards cubic-bezier(.2,.7,.2,1);
+  }
+  .card:nth-child(1){animation-delay:1.3s}
+  .card:nth-child(2){animation-delay:1.45s}
+  .card:nth-child(3){animation-delay:1.6s}
+  .card:nth-child(4){animation-delay:1.75s}
+  .card:nth-child(5){animation-delay:1.9s}
+  .card .num{
+    position:absolute;top:8px;left:10px;font-weight:900;font-size:14px;color:var(--gold);
+    letter-spacing:.2em;
+  }
+  .card .name{
+    position:absolute;bottom:8px;left:10px;right:10px;
+    font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+    color:#fff;text-shadow:0 2px 6px rgba(0,0,0,.6);
+  }
+  .card .role{position:absolute;bottom:24px;left:10px;font-size:9px;letter-spacing:.25em;color:#ffd766;text-transform:uppercase}
+  .card svg{position:absolute;inset:auto 0 22px 0;margin:auto;display:block;width:90%;height:60%}
+  .card::after{
+    content:"";position:absolute;inset:0;
+    background:linear-gradient(180deg,transparent 55%,rgba(0,0,0,.55) 100%);
+  }
 
-.brand-bar{
-    display:flex;
-    align-items:center;
-    gap:20px;
-    padding:20px;
-}
+  .scoreboard{
+    pointer-events:auto;
+    display:flex;align-items:center;gap:14px;color:#fff;
+    background:rgba(0,0,0,.55);border:1px solid rgba(255,255,255,.15);
+    padding:10px 16px;border-radius:14px;backdrop-filter:blur(8px);
+    font-weight:800;letter-spacing:.18em;text-transform:uppercase;font-size:12px;
+  }
+  .scoreboard .dot{width:8px;height:8px;border-radius:50%;background:var(--red);box-shadow:0 0 12px var(--red);animation:pulse 1.2s ease-in-out infinite}
+  @keyframes pulse{50%{transform:scale(1.4);opacity:.6}}
 
-.brand-logo{
-    width:150px;
-    height:100px;
-    border-radius:50%;
+  /* GOAL flash */
+  .goal{
+    position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;
+    opacity:0;
+  }
+  .goal span{
+    font-size:clamp(120px,22vw,360px);font-weight:900;letter-spacing:-.04em;
+    background:linear-gradient(180deg,#fff,var(--gold));
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    text-shadow:0 30px 80px rgba(255,182,18,.55);
+    transform:scale(.6);
+  }
+  .goal.show{animation:goalPop 2s cubic-bezier(.2,.8,.2,1) forwards}
+  @keyframes goalPop{
+    0%{opacity:0;transform:scale(.6) rotate(-3deg)}
+    20%{opacity:1}
+    60%{opacity:1;transform:scale(1.05) rotate(0)}
+    100%{opacity:0;transform:scale(1.15) rotate(2deg)}
+  }
+
+  /* Replay loop hint */
+  .replay{
+    position:absolute;right:24px;bottom:200px;font-size:10px;letter-spacing:.3em;text-transform:uppercase;
+    color:#bbb;opacity:.6;pointer-events:none;
+  }
+
+  
+/* =========================
+   LEFT & RIGHT IMAGE SLIDERS
+   ========================= */
+.slider{
+    position:absolute;
+    top:50%;
+    transform:translateY(-50%);
+    width:180px;
+    height:80vh;
     overflow:hidden;
-    filter:drop-shadow(0 0 12px rgba(245,197,24,.25));
+    z-index:2;
 }
+.left-slider{left:20px;}
+.right-slider{right:20px;}
 
-.brand-logo img{
-    width:100%;
-    height:100%;
-    object-fit:fill;
-}
-.brand-name{
-    font-family:'Moonwalk',sans-serif;
-    font-size:clamp(25px,4vw,45px);
-
-    background:linear-gradient(#fff,#f7d774,#bf8a1f);
-    -webkit-background-clip:text;
-    color:transparent;
-}
-
-.welcome-stage{
-    height:70%;
-    display:flex;
-    flex-direction:column;
-    justify-content:center;
-    align-items:center;
-    text-align:center;
-}
-
-.welcome-line{
-    font-family:'Anton',sans-serif;
-    color:var(--yellow);
-    font-size:clamp(50px,10vw,130px);
-    opacity:0;
-}
-
-.welcome-sub{
-    margin-top:20px;
-    font-size:clamp(18px,3vw,35px);
-    opacity:0;
-}
-
-@keyframes reveal{
-    from{
-        opacity:0;
-        transform:translateY(80px);
-        filter:blur(10px);
-    }
-    to{
-        opacity:1;
-        transform:translateY(0);
-        filter:blur(0);
-    }
-}
-
-@keyframes glow{
-    0%,100%{
-        text-shadow:0 0 10px rgba(245,197,24,.4);
-    }
-
-    50%{
-        text-shadow:
-        0 0 25px rgba(245,197,24,.9),
-        0 0 60px rgba(245,197,24,.6);
-    }
-}
-
-.footer{
+.slider img{
     position:absolute;
-    bottom:20px;
-    width:100%;
-    text-align:center;
-    letter-spacing:4px;
-}
-
-/* PAGE 2 */
-
-#page2{
-    background:
-    radial-gradient(circle,#222 0%,#000 100%);
-}
-
-.quote-stage{
-    height:100%;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    text-align:center;
-    padding:30px;
-}
-
-.quote-card{
-    max-width:900px;
-}
-
-.quote-key{
-    font-size:clamp(60px,10vw,140px);
-    font-family:'Cinzel',serif;
-
-    background:linear-gradient(#fff,#f7d774,#bf8a1f);
-    -webkit-background-clip:text;
-    color:transparent;
-}
-
-.quote-line{
-    font-size:clamp(20px,4vw,45px);
-    margin-top:15px;
+    width:160px;
+    height:200px;
+    object-fit:cover;
+    border-radius:15px;
+    border:3px solid rgba(255,255,255,0.8);
+    box-shadow:0 10px 25px rgba(0,0,0,0.5);
     opacity:0;
+    left:10px;
+    animation:sliderAnimation 18s linear infinite;
 }
 
-.quote-ref{
-    margin-top:25px;
-    color:var(--gold);
-    font-size:24px;
-    letter-spacing:4px;
+.left-slider img:nth-child(1){animation-delay:0s;}
+.left-slider img:nth-child(2){animation-delay:3s;}
+.left-slider img:nth-child(3){animation-delay:6s;}
+.left-slider img:nth-child(4){animation-delay:9s;}
+.left-slider img:nth-child(5){animation-delay:12s;}
+.left-slider img:nth-child(6){animation-delay:15s;}
+
+.right-slider img:nth-child(1){animation-delay:0s;}
+.right-slider img:nth-child(2){animation-delay:3s;}
+.right-slider img:nth-child(3){animation-delay:6s;}
+.right-slider img:nth-child(4){animation-delay:9s;}
+.right-slider img:nth-child(5){animation-delay:12s;}
+.right-slider img:nth-child(6){animation-delay:15s;}
+
+@keyframes sliderAnimation{
+    0%{opacity:0;transform:translateX(100px) scale(0.8);}
+    8%{opacity:1;transform:translateX(0) scale(1);}
+    25%{opacity:1;transform:translateX(0) scale(1);}
+    33%{opacity:0;transform:translateX(-100px) scale(0.8);}
+    100%{opacity:0;transform:translateX(-100px) scale(0.8);}
 }
 
-.quote-card.in .quote-line{
-    animation:slideIn .8s forwards;
-}
 
-.quote-card.in .quote-line:nth-child(1){animation-delay:.2s;}
-.quote-card.in .quote-line:nth-child(2){animation-delay:.4s;}
-.quote-card.in .quote-line:nth-child(3){animation-delay:.6s;}
-
-@keyframes slideIn{
-    from{
-        opacity:0;
-        transform:translateX(40px);
-    }
-    to{
-        opacity:1;
-        transform:translateX(0);
-    }
-}
-
-/* FINAL SCREEN */
-
-#finalWelcome{
-    position:fixed;
-    inset:0;
-    background:black;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    text-align:center;
-    z-index:9999;
-    opacity:0;
-    visibility:hidden;
-    transition:2s;
-}
-
-#finalWelcome.show{
-    opacity:1;
-    visibility:visible;
-}
-
-.final-content h1{
-    color:var(--yellow);
-    font-size:clamp(50px,8vw,150px);
-
-    animation:glow 4s infinite;
-}
-
-.final-content p{
-    margin-top:30px;
-    font-size:clamp(18px,3vw,35px);
-    line-height:1.8;
-    padding:20px;
-}
-
-/* DUST */
-
-.dust{
-    position:absolute;
-    inset:0;
-    pointer-events:none;
-}
-
-.dust span{
-    position:absolute;
-    width:4px;
-    height:4px;
-    background:gold;
-    border-radius:50%;
-    animation:floatUp linear infinite;
-}
-
-@keyframes floatUp{
-    from{
-        transform:translateY(0);
-        opacity:0;
-    }
-
-    20%{
-        opacity:1;
-    }
-
-    to{
-        transform:translateY(-110vh);
-        opacity:0;
-    }
-}
-
+@media (max-width:720px){
+    .card{width:92px;height:120px}
+    .card .name{font-size:10px}
+    .topbar{padding:16px 18px}
+    .bottom{padding:18px;grid-template-columns:1fr;gap:14px}
+    .scoreboard{justify-self:start}
+  }
 </style>
 </head>
 <body>
+  <div id="stage"></div>
 
-<!-- PAGE 1 -->
+  <div class="hud">
+    <header class="topbar">
+      <div class="crest">
+        <div class="ball" aria-hidden="true"></div>
+        <h1>BAFANA <span>BAFANA</span></h1>
+      </div>
+      <div class="badge">FIFA World Cup • Round of 32</div>
+    </header>
 
-<section id="page1" class="page active">
+    <section class="center">
+      <div class="kicker">Mzansi, we are through</div>
+      <div class="title">QUALIFIED</div>
+      <div class="sub">South Africa • Round of 32</div>
+    </section>
+	
+	<!-- LEFT SLIDER -->
 
-<header class="brand-bar">
-
-<div class="brand-logo">
-<img src="logo.jpeg" alt="">
+<div class="slider left-slider">
+    <img src="mbokazi.jpg">
+    <img src="apollis.jpg">
+    <img src="williams.jpg">
+    <img src="ratomo.jpg">
+    <img src="makgopa.jpg">
+    <img src="maseko.jpg">
 </div>
 
-<div class="brand-name">
-Word Of Life Ministries International Church
+<!-- RIGHT SLIDER -->
+
+<div class="slider right-slider">
+    <img src="broos.jpg">
+    <img src="moremi.jpg">
+    <img src="sebelebele.jpg">
+    <img src="okon.jpg">
+    <img src="cross.jpg">
+    <img src="mokoena.jpg">
 </div>
 
-</header>
+    <footer class="bottom">
+      <div class="reel" id="reel"></div>
+      <div class="scoreboard"><span class="dot"></span><span>LIVE • RSA advances to RO32</span></div>
+    </footer>
+  </div>
 
-<div class="welcome-stage">
+  
+  <div class="replay">auto-loop • broadcast cut</div>
 
-<div class="welcome-line" id="w1">
-HAPPY
-</div>
+<script type="importmap">
+{ "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js" } }
+</script>
+<script type="module">
+import * as THREE from 'three';
 
-<div class="welcome-line" id="w2">
-FATHER'S DAY
-</div>
+/* ---------- Scene ---------- */
+const stage = document.getElementById('stage');
+const scene = new THREE.Scene();
+scene.fog = new THREE.Fog(0x001a10, 18, 60);
 
-<div class="welcome-sub" id="w3">
-Celebrating The Heroes We Call Dad
-</div>
+const camera = new THREE.PerspectiveCamera(45, innerWidth/innerHeight, 0.1, 200);
+camera.position.set(0, 5.5, 16);
 
-</div>
+const renderer = new THREE.WebGLRenderer({antialias:true, alpha:false});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.setSize(innerWidth, innerHeight);
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.15;
+stage.appendChild(renderer.domElement);
 
-<div class="dust" id="dust"></div>
+/* ---------- Lighting (stadium feel) ---------- */
+scene.add(new THREE.HemisphereLight(0xbfe9d0, 0x0a1a12, 0.55));
 
-<div class="footer">
-A DAY TO HONOUR OUR FATHERS
-</div>
+const key = new THREE.DirectionalLight(0xffffff, 1.4);
+key.position.set(8,14,8); key.castShadow=true;
+key.shadow.mapSize.set(2048,2048);
+key.shadow.camera.left=-20;key.shadow.camera.right=20;
+key.shadow.camera.top=20;key.shadow.camera.bottom=-20;
+scene.add(key);
 
-</section>
+const goldRim = new THREE.DirectionalLight(0xffb612, 1.1);
+goldRim.position.set(-10,6,-6);
+scene.add(goldRim);
 
-<!-- PAGE 2 -->
+const greenFill = new THREE.PointLight(0x00b870, 1.4, 30);
+greenFill.position.set(0,4,-4);
+scene.add(greenFill);
 
-<section id="page2" class="page">
+/* ---------- Pitch ---------- */
+const pitchGeo = new THREE.CircleGeometry(40, 64);
+const pitchMat = new THREE.MeshStandardMaterial({color:0x046a3b, roughness:.95, metalness:0});
+const pitch = new THREE.Mesh(pitchGeo, pitchMat);
+pitch.rotation.x = -Math.PI/2;
+pitch.receiveShadow = true;
+scene.add(pitch);
 
-<div class="quote-stage">
-
-<div class="quote-card" id="quoteCard">
-
-<div class="quote-key" id="qKey">
-DAD
-</div>
-
-<div id="qBody"></div>
-
-</div>
-
-</div>
-
-</section>
-
-<!-- FINAL -->
-
-<div id="finalWelcome">
-
-<div class="final-content">
-
-<h1>HAPPY FATHER'S DAY</h1>
-
-<p>
-Dad, your love, wisdom and strength inspire us every day.<br>
-Thank you for every sacrifice, every prayer and every word of encouragement.<br><br>
-May God richly bless you today and always.
-</p>
-
-</div>
-
-</div>
-
-<script>
-
-/* WELCOME ANIMATION */
-
-setTimeout(()=>{
-document.getElementById("w1").style.animation=
-"reveal 1.5s forwards, glow 5s infinite";
-},300);
-
-setTimeout(()=>{
-document.getElementById("w2").style.animation=
-"reveal 1.5s forwards, glow 5s infinite";
-},1200);
-
-setTimeout(()=>{
-document.getElementById("w3").style.animation=
-"reveal 1.5s forwards";
-},2200);
-
-
-/* DUST */
-
-const dust=document.getElementById("dust");
-
-for(let i=0;i<50;i++){
-
-let s=document.createElement("span");
-
-s.style.left=Math.random()*100+"%";
-s.style.bottom="-10px";
-s.style.animationDuration=(5+Math.random()*10)+"s";
-s.style.animationDelay=Math.random()*10+"s";
-
-dust.appendChild(s);
+// Mowing stripes
+for(let i=-18;i<=18;i+=3){
+  const stripe = new THREE.Mesh(
+    new THREE.PlaneGeometry(60,1.5),
+    new THREE.MeshStandardMaterial({color: (i/3)%2===0?0x055f36:0x067a44, roughness:1})
+  );
+  stripe.rotation.x = -Math.PI/2;
+  stripe.position.set(0,0.01,i);
+  scene.add(stripe);
 }
 
+// Center line + circle
+const lineMat = new THREE.MeshBasicMaterial({color:0xffffff});
+const cLine = new THREE.Mesh(new THREE.PlaneGeometry(60,.15), lineMat);
+cLine.rotation.x=-Math.PI/2; cLine.position.y=.02; scene.add(cLine);
+const ring = new THREE.Mesh(new THREE.RingGeometry(3,3.1,64), lineMat);
+ring.rotation.x=-Math.PI/2; ring.position.y=.02; scene.add(ring);
 
-/* QUOTES */
-
-const QUOTES=[
-
-{
-key:"DAD",
-lines:[
-"TODAY WE HONOUR YOU",
-"FOR YOUR LOVE AND STRENGTH",
-"THANK YOU FOR EVERYTHING"
-],
-ref:"Happy Father's Day"
-},
-
-{
-key:"THANK YOU",
-lines:[
-"FOR ALWAYS BEING THERE",
-"FOR YOUR GUIDANCE",
-"AND YOUR SUPPORT"
-],
-ref:"You Are Appreciated"
-},
-
-{
-key:"YOUR LOVE",
-lines:[
-"HAS SHAPED OUR LIVES",
-"INSPIRED OUR DREAMS",
-"AND GIVEN US HOPE"
-],
-ref:"Thank You Dad"
-},
-
-{
-key:"BLESSINGS",
-lines:[
-"MAY GOD BLESS YOU",
-"WITH JOY, PEACE",
-"AND GOOD HEALTH"
-],
-ref:"Numbers 6:24-26"
-},
-
-{
-key:"SPECIAL MESSAGE",
-lines:[
-"A FATHER IS SOMEONE",
-"YOU LOOK UP TO",
-"NO MATTER HOW TALL YOU GROW"
-],
-ref:"Forever Loved"
+/* ---------- Crowd backdrop (color stripes) ---------- */
+const palette = [0x007a4d,0xffb612,0xffffff,0x000000,0xde3831,0x002395];
+for(let i=0;i<320;i++){
+  const m = new THREE.Mesh(
+    new THREE.BoxGeometry(.45,.45,.45),
+    new THREE.MeshStandardMaterial({color:palette[i%palette.length], emissive:palette[i%palette.length], emissiveIntensity:.25, roughness:.6})
+  );
+  const angle = (i/320)*Math.PI*2;
+  const r = 22 + Math.random()*4;
+  m.position.set(Math.cos(angle)*r, 1.2+Math.random()*4, Math.sin(angle)*r);
+  m.userData.baseY = m.position.y;
+  m.userData.phase = Math.random()*Math.PI*2;
+  scene.add(m);
 }
 
+/* ---------- 3D cartoon player ---------- */
+function makePlayer(jerseyColor=0x007a4d, shortColor=0xffb612, skin=0x6b3a1a, number="10"){
+  const g = new THREE.Group();
+
+  const skinMat = new THREE.MeshStandardMaterial({color:skin, roughness:.7});
+  const jersey = new THREE.MeshStandardMaterial({color:jerseyColor, roughness:.6});
+  const shorts = new THREE.MeshStandardMaterial({color:shortColor, roughness:.7});
+  const socks  = new THREE.MeshStandardMaterial({color:0xffffff, roughness:.6});
+  const boots  = new THREE.MeshStandardMaterial({color:0x111111, roughness:.4, metalness:.3});
+
+  // Body
+  const torso = new THREE.Mesh(new THREE.CapsuleGeometry(.55,1.1,6,12), jersey);
+  torso.position.y = 1.9; torso.castShadow=true; g.add(torso);
+
+  // Head
+  const head = new THREE.Mesh(new THREE.SphereGeometry(.42,24,24), skinMat);
+  head.position.y = 3.0; head.castShadow=true; g.add(head);
+
+  // Eyes
+  const eyeMat = new THREE.MeshBasicMaterial({color:0xffffff});
+  const pupMat = new THREE.MeshBasicMaterial({color:0x111111});
+  for(const x of [-.14,.14]){
+    const e = new THREE.Mesh(new THREE.SphereGeometry(.08,12,12), eyeMat);
+    e.position.set(x,3.05,.36); g.add(e);
+    const p = new THREE.Mesh(new THREE.SphereGeometry(.04,12,12), pupMat);
+    p.position.set(x,3.05,.42); g.add(p);
+  }
+  // Smile
+  const smile = new THREE.Mesh(new THREE.TorusGeometry(.12,.025,8,16,Math.PI), new THREE.MeshBasicMaterial({color:0x111111}));
+  smile.position.set(0,2.85,.38); smile.rotation.z=Math.PI;
+  g.add(smile);
+
+  // Number patch
+  const canvas = document.createElement('canvas');
+  canvas.width=128;canvas.height=128;
+  const ctx=canvas.getContext('2d');
+  ctx.fillStyle='#ffb612';ctx.fillRect(0,0,128,128);
+  ctx.fillStyle='#000';ctx.font='900 90px Inter,Arial';ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillText(number,64,72);
+  const tex = new THREE.CanvasTexture(canvas);
+  const num = new THREE.Mesh(new THREE.PlaneGeometry(.5,.5), new THREE.MeshBasicMaterial({map:tex,transparent:true}));
+  num.position.set(0,2.0,.57); g.add(num);
+
+  // Arms
+  const armGeo = new THREE.CapsuleGeometry(.16,.9,6,10);
+  const armL = new THREE.Mesh(armGeo, skinMat); armL.position.set(-.75,2.05,0); armL.castShadow=true; g.add(armL);
+  const armR = new THREE.Mesh(armGeo, skinMat); armR.position.set( .75,2.05,0); armR.castShadow=true; g.add(armR);
+  g.userData.armL = armL; g.userData.armR = armR;
+
+  // Shorts
+  const sh = new THREE.Mesh(new THREE.CylinderGeometry(.55,.5,.5,16), shorts);
+  sh.position.y=1.2; g.add(sh);
+
+  // Legs
+  const legGeo = new THREE.CapsuleGeometry(.22,.9,6,10);
+  const legL = new THREE.Mesh(legGeo, skinMat); legL.position.set(-.27,.55,0); legL.castShadow=true; g.add(legL);
+  const legR = new THREE.Mesh(legGeo, skinMat); legR.position.set( .27,.55,0); legR.castShadow=true; g.add(legR);
+  g.userData.legL = legL; g.userData.legR = legR;
+
+  // Socks + boots
+  const sockL = new THREE.Mesh(new THREE.CylinderGeometry(.23,.23,.3,12), socks); sockL.position.set(-.27,.12,0); g.add(sockL);
+  const sockR = new THREE.Mesh(new THREE.CylinderGeometry(.23,.23,.3,12), socks); sockR.position.set( .27,.12,0); g.add(sockR);
+  const bootL = new THREE.Mesh(new THREE.BoxGeometry(.35,.18,.55), boots); bootL.position.set(-.27,-.02,.1); g.add(bootL);
+  const bootR = new THREE.Mesh(new THREE.BoxGeometry(.35,.18,.55), boots); bootR.position.set( .27,-.02,.1); g.add(bootR);
+
+  return g;
+}
+
+const players = [];
+const lineup = [
+  {jersey:0x007a4d, shorts:0xffb612, num:"10", x:-4, skin:0x5a2d10},
+  {jersey:0x007a4d, shorts:0xffb612, num:"7",  x:-1.5, skin:0x7a4422},
+  {jersey:0x007a4d, shorts:0xffb612, num:"9",  x: 1.5, skin:0x4a2208},
+  {jersey:0x007a4d, shorts:0xffb612, num:"11", x: 4,   skin:0x6b3a1a},
 ];
-
-let qIndex=0;
-
-const qKey=document.getElementById("qKey");
-const qBody=document.getElementById("qBody");
-const quoteCard=document.getElementById("quoteCard");
-
-function renderQuote(){
-
-const q=QUOTES[qIndex];
-
-qKey.textContent=q.key;
-
-qBody.innerHTML="";
-
-q.lines.forEach(line=>{
-
-const div=document.createElement("div");
-div.className="quote-line";
-div.textContent=line;
-
-qBody.appendChild(div);
-
+lineup.forEach(p=>{
+  const m = makePlayer(p.jersey,p.shorts,p.skin,p.num);
+  m.position.set(p.x,0,0);
+  m.userData.basePhase = Math.random()*Math.PI*2;
+  scene.add(m); players.push(m);
 });
 
-const ref=document.createElement("div");
-ref.className="quote-ref";
-ref.textContent=q.ref;
+/* ---------- Ball ---------- */
+const ball = new THREE.Mesh(
+  new THREE.SphereGeometry(.35,32,32),
+  new THREE.MeshStandardMaterial({color:0xffffff, roughness:.4, metalness:.1})
+);
+ball.position.set(0,.35,3); ball.castShadow=true; scene.add(ball);
 
-qBody.appendChild(ref);
-
-quoteCard.classList.remove("in");
-
-void quoteCard.offsetWidth;
-
-quoteCard.classList.add("in");
+/* ---------- Confetti ---------- */
+const confetti = [];
+function spawnConfetti(){
+  for(let i=0;i<260;i++){
+    const c = new THREE.Mesh(
+      new THREE.PlaneGeometry(.18,.28),
+      new THREE.MeshStandardMaterial({color:palette[i%palette.length], side:THREE.DoubleSide, emissive:palette[i%palette.length], emissiveIntensity:.4})
+    );
+    c.position.set((Math.random()-.5)*18, 10+Math.random()*8, (Math.random()-.5)*8);
+    c.rotation.set(Math.random()*Math.PI, Math.random()*Math.PI, Math.random()*Math.PI);
+    c.userData = {
+      vy:-.04-Math.random()*.05,
+      vx:(Math.random()-.5)*.04,
+      vz:(Math.random()-.5)*.02,
+      rx:(Math.random()-.5)*.1, ry:(Math.random()-.5)*.1
+    };
+    scene.add(c); confetti.push(c);
+  }
 }
 
-renderQuote();
+/* ---------- Flag (animated cloth via vertex sin) ---------- */
+const flagGeo = new THREE.PlaneGeometry(6,4,30,20);
+const flagMat = new THREE.MeshStandardMaterial({vertexColors:true, side:THREE.DoubleSide, roughness:.85});
+const colors = [];
+const pos = flagGeo.attributes.position;
+// Simplified SA flag: green Y, gold/white/red/blue/black bands
+const c = new THREE.Color();
+for(let i=0;i<pos.count;i++){
+  const x = pos.getX(i), y = pos.getY(i);
+  // Normalize
+  const u = (x+3)/6, v=(y+2)/4;
+  let hex = 0x007a4d;
+  if(v>0.66) hex = 0xde3831;       // red top
+  else if(v<0.34) hex = 0x002395;  // blue bottom
+  // Y shape from left
+  const yArm = Math.abs(v-0.5) < (0.18 + u*0.12);
+  if(yArm && u<0.55) hex = 0x007a4d;
+  if(yArm && u<0.5){
+    // gold/white edges
+    const edge = Math.abs(v-0.5);
+    if(edge>0.10 && edge<0.18) hex = 0xffffff;
+  }
+  // Black triangle on hoist
+  if(u<0.3 && Math.abs(v-0.5) < 0.16 - u*0.3) hex = 0x000000;
+  c.setHex(hex);
+  colors.push(c.r,c.g,c.b);
+}
+flagGeo.setAttribute('color', new THREE.Float32BufferAttribute(colors,3));
+const flag = new THREE.Mesh(flagGeo, flagMat);
+flag.position.set(-8, 6, -2); flag.rotation.y = .4;
+scene.add(flag);
 
-function nextQuote(){
+// Flag pole
+const pole = new THREE.Mesh(new THREE.CylinderGeometry(.08,.08,10,12), new THREE.MeshStandardMaterial({color:0xdddddd, metalness:.8, roughness:.3}));
+pole.position.set(-11, 5, -2); scene.add(pole);
 
-qIndex++;
+/* ---------- Goal posts ---------- */
+const postMat = new THREE.MeshStandardMaterial({color:0xffffff, roughness:.4});
+const post1 = new THREE.Mesh(new THREE.CylinderGeometry(.12,.12,4,16), postMat);
+post1.position.set(-3,2,-8); scene.add(post1);
+const post2 = post1.clone(); post2.position.x=3; scene.add(post2);
+const crossbar = new THREE.Mesh(new THREE.CylinderGeometry(.12,.12,6,16), postMat);
+crossbar.rotation.z=Math.PI/2; crossbar.position.set(0,4,-8); scene.add(crossbar);
 
-if(qIndex>=QUOTES.length){
-qIndex=0;
+/* ---------- Animation loop ---------- */
+const clock = new THREE.Clock();
+let t = 0;
+let goalTriggered = false;
+const goalEl = null;
+
+function loop(){
+  const dt = clock.getDelta();
+  t += dt;
+
+  // Camera dolly (cinematic, auto, looping)
+  const cyc = (t % 14)/14; // 14s ad loop
+  const angle = cyc * Math.PI*2;
+  camera.position.x = Math.sin(angle)*14;
+  camera.position.z = Math.cos(angle)*14 + 4;
+  camera.position.y = 5 + Math.sin(t*.4)*.6;
+  camera.lookAt(0,2,0);
+
+  // Players celebrate: jumping + arms up
+  players.forEach((p,i)=>{
+    const phase = t*4 + p.userData.basePhase + i;
+    p.position.y = Math.max(0, Math.sin(phase)*.6);
+    p.rotation.y = Math.sin(t*1.2 + i)*.4;
+    // Arms wave
+    p.userData.armL.rotation.z =  .6 + Math.sin(phase)*.8;
+    p.userData.armR.rotation.z = -.6 - Math.sin(phase)*.8;
+    p.userData.armL.position.y = 2.4 + Math.sin(phase)*.2;
+    p.userData.armR.position.y = 2.4 + Math.sin(phase)*.2;
+    // Knee bend
+    p.userData.legL.rotation.x =  Math.sin(phase)*.4;
+    p.userData.legR.rotation.x = -Math.sin(phase)*.4;
+  });
+
+  // Ball bouncing
+  ball.position.y = .35 + Math.abs(Math.sin(t*3))*1.2;
+  ball.rotation.x += dt*4; ball.rotation.z += dt*3;
+
+  // Crowd bob
+  scene.traverse(o=>{
+    if(o.userData && o.userData.baseY !== undefined){
+      o.position.y = o.userData.baseY + Math.sin(t*4 + o.userData.phase)*.25;
+    }
+  });
+
+  // Flag wave
+  const fp = flag.geometry.attributes.position;
+  for(let i=0;i<fp.count;i++){
+    const x = fp.getX(i), y = fp.getY(i);
+    const u = (x+3)/6;
+    const z = Math.sin(u*6 - t*3) * .4 * u + Math.sin(y*2 + t*2)*.05;
+    fp.setZ(i, z);
+  }
+  fp.needsUpdate = true;
+
+  // Confetti
+  confetti.forEach(c=>{
+    c.position.x += c.userData.vx;
+    c.position.y += c.userData.vy;
+    c.position.z += c.userData.vz;
+    c.rotation.x += c.userData.rx;
+    c.rotation.y += c.userData.ry;
+    if(c.position.y < 0){
+      c.position.y = 12 + Math.random()*4;
+      c.position.x = (Math.random()-.5)*18;
+    }
+  });
+
+  // Auto GOAL! flash every loop
+  const inGoalWindow = (t % 14) > 6 && (t % 14) < 6.2;
+  if(inGoalWindow && !goalTriggered){
+    goalTriggered = true;
+    if(goalEl){ goalEl.classList.remove('show'); void goalEl.offsetWidth; goalEl.classList.add('show'); }
+    flashStadium();
+  }
+  if((t % 14) > 9) goalTriggered = false;
+
+  renderer.render(scene,camera);
+  requestAnimationFrame(loop);
 }
 
-renderQuote();
+function flashStadium(){
+  const orig = greenFill.intensity;
+  greenFill.color.set(0xffb612);
+  greenFill.intensity = 6;
+  setTimeout(()=>{ greenFill.color.set(0x00b870); greenFill.intensity = orig; }, 220);
 }
 
-setInterval(nextQuote,5000);
+spawnConfetti();
+loop();
 
+addEventListener('resize',()=>{
+  camera.aspect = innerWidth/innerHeight; camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+});
 
-/* PAGE SWITCH */
-
-const page1=document.getElementById("page1");
-const page2=document.getElementById("page2");
-
-setTimeout(()=>{
-
-page1.classList.remove("active");
-page2.classList.add("active");
-
-},7000);
-
-
-/* FINAL SCREEN */
-
-setTimeout(()=>{
-
-document.getElementById("finalWelcome")
-.classList.add("show");
-
-},35000);
-
+/* ---------- Player reel (CSS cards with stylized SVG portraits) ---------- */
+const reel = document.getElementById('reel');
+const squad = [
+  {num:"1", name:"Williams", role:"GK"},
+  {num:"2", name:"Mudau", role:"DF"},
+  {num:"3", name:"Modiba", role:"DF"},
+  {num:"4", name:"Mbokazi", role:"DF"},
+  {num:"5", name:"Sibisi", role:"DF"},
+  {num:"6", name:"Mokoena", role:"MF"},
+  {num:"7", name:"Zwane", role:"MF"},
+  {num:"8", name:"Sithole", role:"MF"},
+  {num:"9", name:"Makgopa", role:"FW"},
+  {num:"10", name:"Mofokeng", role:"WG"},
+  {num:"11", name:"Rayners", role:"FW"},
+  {num:"12", name:"Appollis", role:"WG"}
+];
+const portrait = (i)=>`
+  <svg viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="g${i}" x1="0" x2="0" y1="0" y2="1">
+        <stop offset="0%" stop-color="#ffb612"/>
+        <stop offset="100%" stop-color="#007a4d"/>
+      </linearGradient>
+    </defs>
+    <circle cx="50" cy="42" r="22" fill="#6b3a1a"/>
+    <rect x="20" y="62" width="60" height="50" rx="10" fill="url(#g${i})"/>
+    <rect x="38" y="72" width="24" height="22" rx="3" fill="#ffb612"/>
+    <text x="50" y="89" text-anchor="middle" font-family="Inter,Arial" font-weight="900" font-size="14" fill="#000">${squad[i].num}</text>
+    <circle cx="42" cy="40" r="2" fill="#fff"/><circle cx="58" cy="40" r="2" fill="#fff"/>
+    <path d="M42 50 Q50 56 58 50" stroke="#000" stroke-width="2" fill="none" stroke-linecap="round"/>
+  </svg>`;
+squad.forEach((p,i)=>{
+  const el = document.createElement('div');
+  el.className = 'card';
+  el.innerHTML = `
+    <div class="num">#${p.num}</div>
+    ${portrait(i)}
+    <div class="role">${p.role}</div>
+    <div class="name">${p.name}</div>`;
+  reel.appendChild(el);
+});
 </script>
-
 </body>
 </html>
